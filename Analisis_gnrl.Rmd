@@ -1,0 +1,132 @@
+---
+title: "Análisis General"
+author: "Ariel Fuentes"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+    math: katex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(kableExtra)
+library(plotly)
+library(dplyr)
+library(tibble)
+library(data.table)
+library(dtplyr)
+```
+
+## Análisis por Tipo de Día
+
+````{r, echo = F, warning = F, message = F}
+#data
+tb2_td <- group_by(tb2_tbl, Día) %>%
+  summarise(Etapas = sum(Etapas), Viajes = sum(Viajes)) %>%
+  mutate(Transbordos = Etapas/Viajes) %>%
+  left_join(class_día) %>%
+  arrange(NDía) %>%
+  select(-NDía) %>%
+  mutate(Día = factor(Día, 
+                      levels = c("LABORAL", "SABADO", "DOMINGO")
+                      )
+         )
+
+#table
+kable(tb2_td, 
+      format.args = list(big.mark = ","), 
+      digits = 2) %>%
+  kable_styling(full_width = F, 
+                position = "left")
+
+#plot
+plot_ly(data = as_tibble(tb2_td)) %>%
+  add_bars(x = ~Día, y = ~Viajes, name = "Viajes") %>%
+  add_bars(x = ~Día, y = ~Etapas, name = "Etapas") %>%
+  add_lines(x = ~Día, y = ~Transbordos, name = "Transbordos", yaxis = "y2") %>%
+  layout(yaxis = list(hoverformat = ".0f", title = "Demanda"), 
+         yaxis2 = list(hoverformat = ".2f", overlaying = "y", side = "right", title = "Transbordos" ),          barmode = "group")
+
+````
+
+## Análisis por Periodo
+
+### 1. Laboral
+
+````{r, echo = F, warning = F, message = F}
+#data
+tb2_per <- group_by(filter(tb2_tbl, Día == "LABORAL"), Periodo, Día) %>%
+  summarise(Etapas = sum(Etapas), Viajes = sum(Viajes)) %>%
+  mutate(Transbordos = Etapas/Viajes) %>%
+  left_join(class_día) %>%
+  arrange(NDía) %>%
+  select(-NDía, -Día)
+
+#table
+kable(tb2_per, format.args = list(big.mark = ","), digits = 2) %>%
+  kable_styling(full_width = F, position = "left")
+
+#plot
+plot_ly(data = as_tibble(tb2_per)) %>%
+  add_bars(x = ~Periodo, y = ~Viajes, name = "Viajes") %>%
+  add_bars(x = ~Periodo, y = ~Etapas, name = "Etapas") %>%
+  add_lines(x = ~Periodo, y = ~Transbordos, name = "Transbordos", yaxis = "y2") %>%
+  layout(yaxis = list(hoverformat = ".0f", title = "Demanda"), yaxis2 = list(hoverformat = ".2f", overlaying = "y", side = "right", title = "Transbordos" ), barmode = "group")
+````
+
+### 2. Sábado
+
+````{r, echo = F, warning = F, message = F}
+#data
+tb2_per <- group_by(filter(tb2_tbl, Día == "SABADO"), Periodo, Día) %>%
+  summarise(Etapas = sum(Etapas), Viajes = sum(Viajes)) %>%
+  mutate(Transbordos = Etapas/Viajes) %>%
+  left_join(class_día) %>%
+  arrange(NDía) %>%
+  select(-NDía, -Día)
+
+#table
+kable(tb2_per, format.args = list(big.mark = ","), digits = 2) %>%
+  kable_styling(full_width = F, position = "left")
+
+#plot
+plot_ly(data = as_tibble(tb2_per)) %>%
+  add_bars(x = ~Periodo, y = ~Viajes, name = "Viajes") %>%
+  add_bars(x = ~Periodo, y = ~Etapas, name = "Etapas") %>%
+  add_lines(x = ~Periodo, y = ~Transbordos, name = "Transbordos", yaxis = "y2") %>%
+  layout(yaxis = list(hoverformat = ".0f", title = "Demanda"), yaxis2 = list(hoverformat = ".2f", overlaying = "y", side = "right", title = "Transbordos" ), barmode = "group")
+````
+
+### 3. DOMINGO
+
+````{r, echo = F, warning = F, message = F}
+#data
+tb2_per <- group_by(filter(tb2_tbl, Día == "DOMINGO"), Periodo, Día) %>%
+  summarise(Etapas = sum(Etapas), Viajes = sum(Viajes)) %>%
+  mutate(Transbordos = Etapas/Viajes) %>%
+  left_join(class_día) %>%
+  arrange(NDía) %>%
+  select(-NDía, -Día)
+
+#table
+kable(tb2_per, format.args = list(big.mark = ","), digits = 2) %>%
+  kable_styling(full_width = F, position = "left")
+
+#plot
+plot_ly(data = as_tibble(tb2_per)) %>%
+  add_bars(x = ~Periodo, y = ~Viajes, name = "Viajes") %>%
+  add_bars(x = ~Periodo, y = ~Etapas, name = "Etapas") %>%
+  add_lines(x = ~Periodo, y = ~Transbordos, name = "Transbordos", yaxis = "y2") %>%
+  layout(yaxis = list(hoverformat = ".0f", title = "Demanda"), yaxis2 = list(hoverformat = ".2f", overlaying = "y", side = "right", title = "Transbordos" ), barmode = "group")
+````
+
+### Comportamiento Zonal/Periodo
+
+Aquí se demuestra el cambio de mobilidad en función de los periodos del día y en la proporción de Origen-Destino, se consideró una zonificación de 2km para poder aproximar el acceso a los puntos de paradas.
+
+````{r, echo = F, warning = F, message = F}
+mobility
+````
